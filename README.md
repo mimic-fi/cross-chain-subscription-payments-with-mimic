@@ -59,10 +59,10 @@ From your command line:
 
 ```bash
 # Clone the repository
-git clone https://github.com/mimic-fi/ethereum-swap-app-with-mimic
+git clone https://github.com/mimic-fi/cross-chain-subscription-payments-with-mimic
 
 # Enter the repository
-cd ethereum-swap-app-with-mimic
+cd cross-chain-subscription-payments-with-mimic
 
 # Install dependencies
 yarn
