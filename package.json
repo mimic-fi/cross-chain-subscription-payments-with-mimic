@@ -1,9 +1,9 @@
 {
   "name": "cross-chain-subscription-payments-with-mimic",
+  "private": true,
   "version": "1.0.0",
   "description": "Cross chain subscription payments with Mimic",
   "license": "MIT",
-  "private": true,
   "scripts": {
     "build": "yarn workspaces run build",
     "lint": "yarn workspaces run lint",

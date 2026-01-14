@@ -4,7 +4,7 @@ description: Cross chain subscriptions payment
 inputs:
   - sourceChain: uint32
   - destinationChain: uint32
-  - amountIn: string
+  - amountIn: string        # e.g., '10.5' = 10.5 USDC
   - recipient: address
   - slippage: string
-  - maxFee: string
+  - maxFee: string          # e.g., '0.01' = 0.01 USDC
