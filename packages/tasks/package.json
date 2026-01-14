@@ -1,0 +1,35 @@
+{
+  "name": "cross-chain-subscription-payments-with-mimic",
+  "description": "Cross chain subscription payments with Mimic - Tasks",
+  "private": true,
+  "version": "0.0.1",
+  "license": "Private",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "yarn codegen && yarn compile",
+    "upload": "tsx scripts/upload-tasks.ts",
+    "codegen": "yarn mimic codegen",
+    "compile": "yarn mimic compile",
+    "deploy": "yarn mimic deploy",
+    "test": "yarn mimic test"
+  },
+  "devDependencies": {
+    "@mimicprotocol/cli": "0.0.1-rc.34",
+    "@mimicprotocol/lib-ts": "0.0.1-rc.34",
+    "@mimicprotocol/test-ts": "0.0.1-rc.34",
+    "@mimicprotocol/sdk": "0.0.1-rc.29",
+    "@types/chai": "^5.2.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.10.5",
+    "assemblyscript": "0.27.36",
+    "chai": "^4.3.7",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.10.0",
+    "json-as": "1.1.7",
+    "mocha": "^10.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "visitor-as": "0.11.4"
+  }
+}
