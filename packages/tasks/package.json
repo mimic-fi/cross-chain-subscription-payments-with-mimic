@@ -8,7 +8,6 @@
   "scripts": {
     "lint": "eslint .",
     "build": "yarn codegen && yarn compile",
-    "upload": "tsx scripts/upload-tasks.ts",
     "codegen": "yarn mimic codegen",
     "compile": "yarn mimic compile",
     "deploy": "yarn mimic deploy",

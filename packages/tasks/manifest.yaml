@@ -1,0 +1,10 @@
+version: 1.0.0
+name: Subscriptions payments
+description: Cross chain subscriptions payment
+inputs:
+  - sourceChain: uint32
+  - destinationChain: uint32
+  - amountIn: string
+  - recipient: address
+  - slippage: string
+  - maxFee: string
