@@ -32,10 +32,10 @@ export default function main(): void {
       .build()
       .send()
   } else {
-    // Apply slippage to calculate the expected minimum amount out
     const tokenOut = getUsdc(destinationChain)
-    const amountIn = TokenAmount.fromStringDecimal(tokenOut, inputs.amountIn)
-    const minAmountOut = amountIn.applySlippagePercentage(inputs.slippage)
+    const tokenAmountOut = TokenAmount.fromStringDecimal(tokenOut, inputs.amountIn)
+    const maxFee = TokenAmount.fromStringDecimal(tokenOut, inputs.maxFee)
+    const minAmountOut = tokenAmountOut.minus(maxFee)
 
     SwapBuilder.forChains(sourceChain, destinationChain)
       .addTokenInFromTokenAmount(tokenAmountIn)
