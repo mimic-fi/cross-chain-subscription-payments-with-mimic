@@ -9,7 +9,12 @@ interface TriggerConfigProps {
   onDeltaChange: (value: string) => void
 }
 
-export function TriggerConfig({ cronSchedule, delta, onCronChange, onDeltaChange }: TriggerConfigProps) {
+export function TriggerConfig({ 
+  cronSchedule, 
+  delta,
+  onCronChange, 
+  onDeltaChange
+}: TriggerConfigProps) {
   const presets = [
     { label: "Every minute", cron: "0/1 * * * *", delta: "1" },
     { label: "Every 5 minutes", cron: "0/5 * * * *", delta: "5" },
@@ -19,31 +24,23 @@ export function TriggerConfig({ cronSchedule, delta, onCronChange, onDeltaChange
     { label: "Weekly", cron: "0 0 * * 0", delta: "10080" },
   ]
 
-  const applyPreset = (cron: string, deltaValue: string) => {
+  const handlePresetClick = (cron: string) => {
+    console.log("[v0] Preset clicked - cron:", cron)
     onCronChange(cron)
-    onDeltaChange(deltaValue)
   }
 
-  const isSelected = (cron: string) => {
-    // Normalize cron strings for comparison
-    const normalize = (str: string) => str.trim().replace(/\s+/g, " ")
-    return normalize(cronSchedule) === normalize(cron) || 
-           // Also check against legacy format variations
-           cronSchedule === "* * * * *" && cron === "0/1 * * * *" ||
-           cronSchedule === "* 01 * * *" && cron === "0/1 * * * *"
-  }
+  const isSelected = (cron: string) => cronSchedule === cron
 
   return (
     <div className="space-y-4 p-4 rounded-lg border bg-card">
       <h3 className="font-semibold">Frequency</h3>
-
       <div className="flex flex-wrap gap-2">
         {presets.map((preset) => (
           <Button
             key={preset.label}
             variant={isSelected(preset.cron) ? "default" : "outline"}
             size="sm"
-            onClick={() => applyPreset(preset.cron, preset.delta)}
+            onClick={() => handlePresetClick(preset.cron)}
             className="text-xs"
           >
             {preset.label}

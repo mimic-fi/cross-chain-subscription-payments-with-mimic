@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { Client, ApiKeyAuth } from "@mimicprotocol/sdk"
-import { TASK_CID } from "@/lib/constants"
+import { TASK_CID, transformConfig } from "@/lib/constants"
 
 export async function GET(request: NextRequest) {
   const address = request.nextUrl.searchParams.get("address")
@@ -17,47 +17,38 @@ export async function GET(request: NextRequest) {
   try {
     const client = new Client({
       auth: new ApiKeyAuth(process.env.MIMIC_API_KEY),
-      baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "https://api-protocol.mimic.fi",
+      baseUrl: "https://api-protocol.mimic.fi",
     })
 
-    // Fetch ALL configs for this signer
-    const allConfigs = await client.configs.get({
+    // Fetch active configs for this signer with taskCid filter
+    const activeConfigs = await client.configs.get({
       signer: address,
       offset: 0,
       limit: 100,
+      active: true,
+      taskCid: TASK_CID,
     })
 
-    console.log("[v0] All configs fetched:", allConfigs.length)
-
-    // Filter to only this task's configs
-    const taskConfigs = allConfigs.filter((config: any) => config.taskCid === TASK_CID)
-    console.log("[v0] Task configs found:", taskConfigs.length)
-
-    // Transform to subscription format
-    const transformConfig = (config: any, isActive: boolean) => ({
-      id: config.sig,
-      amount: config.input?.amountIn || "0",
-      frequency: config.trigger?.schedule || "Every minute",
-      recipient: config.input?.recipient || "0x...",
-      status: isActive ? "active" : "paused",
-      createdAt: config.createdAt || new Date().toISOString(),
-    })
-
-    // Separate active and inactive - check if config is disabled
-    const currentSubscriptions = taskConfigs
-      .filter((config: any) => !config.disabled)
-      .map((c: any) => transformConfig(c, true))
+    console.log("[v0] Active configs fetched:", activeConfigs.length)
     
-    const pastSubscriptions = taskConfigs
-      .filter((config: any) => config.disabled)
-      .map((c: any) => transformConfig(c, false))
+    if (activeConfigs.length > 0) {
+      console.log("[v0] First config structure:", activeConfigs[0])
+      console.log("[v0] First config sig:", activeConfigs[0].sig)
+    }
+
+    // Configs already filtered by taskCid from API, no need to filter again
+    const currentSubscriptions = activeConfigs.map((c: any) => transformConfig(c))
+    
+    if (currentSubscriptions.length > 0) {
+      console.log("[v0] First transformed subscription:", currentSubscriptions[0])
+      console.log("[v0] First subscription ID:", currentSubscriptions[0].id)
+    }
 
     console.log("[v0] Current subscriptions:", currentSubscriptions.length)
-    console.log("[v0] Past subscriptions:", pastSubscriptions.length)
 
     return NextResponse.json({
       currentSubscriptions,
-      pastSubscriptions,
+      pastSubscriptions: [],
     })
   } catch (error) {
     console.error("[v0] Error fetching subscriptions:", error)

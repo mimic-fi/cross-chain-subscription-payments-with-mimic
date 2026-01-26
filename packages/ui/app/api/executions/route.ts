@@ -1,57 +1,35 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { Client, EthersSigner } from "@mimicprotocol/sdk"
-import { TASK_CID } from "@/lib/constants"
+import { findExecutions } from "@/lib/find-executions"
 
 export async function GET(request: NextRequest) {
-  const address = request.nextUrl.searchParams.get("address")
+  const searchParams = request.nextUrl.searchParams
+  const signer = searchParams.get("signer")
 
-  if (!address) {
-    return NextResponse.json({ error: "Missing address parameter" }, { status: 400 })
-  }
-
-  if (!process.env.PRIVATE_KEY) {
-    return NextResponse.json({ error: "PRIVATE_KEY not configured" }, { status: 500 })
+  if (!signer) {
+    console.log("[v0] API executions: Missing signer parameter")
+    return NextResponse.json({ error: "Missing signer parameter" }, { status: 400 })
   }
 
   try {
-    const signer = EthersSigner.fromPrivateKey(process.env.PRIVATE_KEY)
-    const client = new Client({
-      signer: signer,
-      baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "https://api-protocol.mimic.fi",
-    })
+    console.log("[v0] API executions: Fetching executions for signer:", signer)
 
-    // Fetch active config first
-    const activeConfigs = await client.configs.get({
-      signer: address,
-      active: true,
-      taskCid: TASK_CID,
-      limit: 1,
-    })
+    const executions = await findExecutions(signer)
 
-    if (activeConfigs.length === 0) {
-      return NextResponse.json({ executions: [] })
-    }
+    console.log("[v0] API executions: Total executions found:", executions.length)
 
-    const config = activeConfigs[0]
-
-    // Fetch executions for this config using configSig
-    const executions = await client.executions.get({
-      configSig: config.sig,
-    })
-
-    // Transform executions
+    // Transform executions for display
     const transformedExecutions = executions.map((execution: any) => ({
       id: execution.id,
-      type: "Subscription Payment",
-      amount: `${config.input?.amountIn || "0"} USDC`,
-      status: execution.status || "pending",
-      timestamp: execution.createdAt?.toISOString() || new Date().toISOString(),
-      hash: execution.id,
+      status: execution.status,
+      transactionHash: execution.transactionHash,
+      createdAt: execution.createdAt,
+      amount: execution.amount,
+      configActive: execution.configActive,
     }))
 
-    return NextResponse.json({ executions: transformedExecutions })
+    return NextResponse.json(transformedExecutions)
   } catch (error) {
-    console.error("[v0] Error fetching executions:", error)
+    console.error("[v0] API executions error:", error)
     return NextResponse.json(
       {
         error: "Failed to fetch executions",

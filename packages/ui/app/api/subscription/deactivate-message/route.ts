@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
   try {
     const signer = EthersSigner.fromPrivateKey(process.env.PRIVATE_KEY)
     const client = new Client({
-      auth: new ApiKeyAuth(process.env.MIMIC_API_KEY),
-      baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "https://api-protocol.mimic.fi",
+      signer: signer,
+      baseUrl: "https://api-protocol.mimic.fi",
     })
 
     // Get the deactivation message for this config using the signer

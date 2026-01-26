@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,14 +9,9 @@ import { Loader2, Settings } from "lucide-react"
 import { TriggerConfig } from "./trigger-config"
 import { useToast } from "@/hooks/use-toast"
 import { useAccount } from "wagmi"
-
-const CHAINS = [
-  { id: "8453", name: "Base", logo: "🔵" },
-  { id: "1", name: "Ethereum", logo: "⟠" },
-  { id: "42161", name: "Arbitrum", logo: "🔷" },
-  { id: "137", name: "Polygon", logo: "🟣" },
-  { id: "43114", name: "Avalanche", logo: "🔺" },
-]
+import { createSubscription } from "@/lib/create-subscription"
+import Image from "next/image"
+import { CHAINS } from "@/lib/constants"
 
 interface SubscribeDialogProps {
   open: boolean
@@ -45,7 +40,7 @@ export function SubscribeDialog({ open, onOpenChange, plan }: SubscribeDialogPro
   })
   const [trigger, setTrigger] = useState({
     cronSchedule: "0/1 * * * *",
-    delta: "1",
+    delta: "10",
   })
 
   // Fetch USDC balances when dialog opens or address changes
@@ -103,39 +98,21 @@ export function SubscribeDialog({ open, onOpenChange, plan }: SubscribeDialogPro
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/evm-call/route", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: address,
-          trigger: {
-            cronSchedule: trigger.cronSchedule,
-            delta: trigger.delta,
-          },
-          config: {
-            sourceChain: config.sourceChain,
-            destinationChain: config.destinationChain,
-            amountIn: config.amountIn,
-            recipient: config.recipient,
-            slippage: config.slippage,
-            maxFee: config.maxFee,
-          },
-        }),
+      const result = await createSubscription({
+        trigger: {
+          cronSchedule: trigger.cronSchedule,
+          delta: trigger.delta,
+        },
+        config: {
+          sourceChain: config.sourceChain,
+          destinationChain: config.destinationChain,
+          amountIn: config.amountIn,
+          recipient: config.recipient,
+          slippage: config.slippage,
+          maxFee: config.maxFee,
+        },
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        const errorMessage = error.details || error.error || "Failed to create subscription"
-        
-        // Handle different error codes
-        if (response.status === 409) {
-          throw new Error(errorMessage)
-        }
-        
-        throw new Error(errorMessage)
-      }
-
-      const result = await response.json()
       console.log("[v0] Subscription created:", result)
 
       toast({
@@ -148,7 +125,7 @@ export function SubscribeDialog({ open, onOpenChange, plan }: SubscribeDialogPro
       console.error("[v0] Subscription error:", error)
       toast({
         title: "Subscription failed",
-        description: error instanceof Error ? error.message : "Please try again later",
+        description: error instanceof Error ? error.message : "Failed to create subscription",
         variant: "destructive",
       })
     } finally {
@@ -185,7 +162,18 @@ export function SubscribeDialog({ open, onOpenChange, plan }: SubscribeDialogPro
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">{chain.logo}</span>
+                    <Image 
+                      src={chain.logo || "/placeholder.svg"} 
+                      alt={chain.name}
+                      width={20}
+                      height={20}
+                      className="rounded-full"
+                      onError={(e) => {
+                        // Fallback if image fails to load
+                        const img = e.target as HTMLImageElement
+                        img.style.display = 'none'
+                      }}
+                    />
                     <span className="font-medium text-sm">{chain.name}</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -199,8 +187,12 @@ export function SubscribeDialog({ open, onOpenChange, plan }: SubscribeDialogPro
           <TriggerConfig
             cronSchedule={trigger.cronSchedule}
             delta={trigger.delta}
-            onCronChange={(value) => setTrigger({ ...trigger, cronSchedule: value })}
-            onDeltaChange={(value) => setTrigger({ ...trigger, delta: value })}
+            onCronChange={useCallback((value: string) => {
+              setTrigger((prev) => ({ ...prev, cronSchedule: value }))
+            }, [])}
+            onDeltaChange={useCallback(() => {
+              // Delta never changes - always 10
+            }, [])}
           />
 
           {/* Settings Button */}
@@ -218,6 +210,32 @@ export function SubscribeDialog({ open, onOpenChange, plan }: SubscribeDialogPro
           {showSettings && (
             <div className="space-y-4 p-4 rounded-lg border bg-muted/50">
               <h3 className="font-semibold text-sm">Advanced Configuration</h3>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Recipient Chain</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {CHAINS.map((chain) => (
+                    <button
+                      key={chain.id}
+                      onClick={() => setConfig((prev) => ({ ...prev, destinationChain: chain.id }))}
+                      className={`p-2 rounded-lg border-2 transition-all text-left flex flex-col items-center gap-1 ${
+                        config.destinationChain === chain.id
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-muted-foreground"
+                      }`}
+                    >
+                      <Image
+                        src={chain.logo || ""}
+                        alt={chain.name}
+                        width={20}
+                        height={20}
+                        className="rounded-full"
+                      />
+                      <div className="font-medium text-xs">{chain.name}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="recipient" className="text-xs">

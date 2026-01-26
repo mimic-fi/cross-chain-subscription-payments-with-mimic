@@ -7,7 +7,7 @@ class ClientSingleton {
   static getInstance(): Client {
     if (!ClientSingleton.instance) {
       ClientSingleton.instance = new Client({
-        baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+        baseUrl: "https://api-protocol.mimic.fi",
       })
     }
     return ClientSingleton.instance
@@ -18,7 +18,7 @@ class ClientSingleton {
       ClientSingleton.currentToken = token
 
       ClientSingleton.instance = new Client({
-        baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+        baseUrl: "https://api-protocol.mimic.fi",
         auth: new BearerAuth(token),
       })
     }
@@ -31,7 +31,7 @@ class ClientSingleton {
   static clearAuth(): void {
     ClientSingleton.currentToken = null
     ClientSingleton.instance = new Client({
-      baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+      baseUrl: "https://api-protocol.mimic.fi",
     })
   }
 

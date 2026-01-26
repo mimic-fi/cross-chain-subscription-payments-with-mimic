@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const signer = EthersSigner.fromPrivateKey(process.env.PRIVATE_KEY)
     const client = new Client({
       signer: signer,
-      baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "https://api-protocol.mimic.fi",
+      baseUrl: "https://api-protocol.mimic.fi",
     })
 
     if (body.action === "pause" || body.action === "cancel") {
