@@ -3,7 +3,9 @@ import { ethers } from 'ethers'
 
 dotenv.config()
 
-const SMART_ACCOUNT_ADDRESS = '0xcc9edebe999cd31a2345c385f3a8f05ff9b421f2'
+// const SMART_ACCOUNT_ADDRESS = '0x93eA260a11B45945a67E52Ea8B3CF4FBFbbd1393'
+const NEW_SMART_ACCOUNT = '0x4634a26fde6a69bE03b51fb0F9F3f62795050732'
+const SMART_ACCOUNT_ADDRESS = NEW_SMART_ACCOUNT
 
 async function main(): Promise<void> {
   const RPC_URL = process.env.RPC_URL
@@ -15,7 +17,10 @@ async function main(): Promise<void> {
   const provider = new ethers.JsonRpcProvider(RPC_URL)
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider)
   const nonce = await provider.getTransactionCount(wallet.address)
-  const authorization = await wallet.authorize({ address: SMART_ACCOUNT_ADDRESS, nonce: nonce + 1 })
+  const authorization = await wallet.authorize({
+    address: SMART_ACCOUNT_ADDRESS,
+    nonce: nonce + 1,
+  })
 
   const tx = await wallet.sendTransaction({
     to: wallet.address,
