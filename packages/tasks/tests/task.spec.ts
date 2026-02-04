@@ -1,5 +1,5 @@
 import { Chains, ONES_ADDRESS, OpType, ZERO_ADDRESS } from '@mimicprotocol/sdk'
-import { runTask, Swap, Transfer } from '@mimicprotocol/test-ts'
+import { runFunction, Swap, Transfer } from '@mimicprotocol/test-ts'
 import { expect } from 'chai'
 
 describe('Task', () => {
@@ -22,12 +22,11 @@ describe('Task', () => {
         amountIn: '1.5', // 1.5 USDC
         payer: ONES_ADDRESS,
         recipient: ZERO_ADDRESS,
-        slippage: '0.5', // 0,5 %
         maxFee: '0.1',
       }
 
       it('produces the expected intents', async () => {
-        const result = await runTask(taskDir, context, { inputs })
+        const result = await runFunction(taskDir, context, { inputs })
 
         expect(result.success).to.be.true
         expect(result.timestamp).to.be.equal(context.timestamp)
@@ -55,12 +54,11 @@ describe('Task', () => {
         amountIn: '1.5', // 1.5 USDC
         payer: ONES_ADDRESS,
         recipient: ZERO_ADDRESS,
-        slippage: '0.5', // 0,5 %
         maxFee: '0.1',
       }
 
       it('produces the expected intents', async () => {
-        const result = await runTask(taskDir, context, { inputs })
+        const result = await runFunction(taskDir, context, { inputs })
 
         expect(result.success).to.be.true
         expect(result.timestamp).to.be.equal(context.timestamp)
@@ -81,7 +79,7 @@ describe('Task', () => {
 
         expect(intents[0].tokensOut).to.have.lengthOf(1)
         expect(intents[0].tokensOut[0].token).to.be.equal('0x833589fcd6edb6e08f4c7c32d4f71b54bda02913')
-        expect(intents[0].tokensOut[0].minAmount).to.be.equal('1492500')
+        expect(intents[0].tokensOut[0].minAmount).to.be.equal('1500000')
         expect(intents[0].tokensOut[0].recipient).to.be.equal(ZERO_ADDRESS)
       })
     })
@@ -94,12 +92,11 @@ describe('Task', () => {
       amountIn: '1.5', // 1.5 USDC
       payer: ONES_ADDRESS,
       recipient: ZERO_ADDRESS,
-      slippage: '0.5', // 0,5 %
       maxFee: '0.1',
     }
 
     it('throws an error', async () => {
-      const result = await runTask(taskDir, context, { inputs })
+      const result = await runFunction(taskDir, context, { inputs })
       expect(result.success).to.be.false
       expect(result.intents).to.have.lengthOf(0)
 
