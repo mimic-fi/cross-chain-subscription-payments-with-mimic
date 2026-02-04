@@ -3,9 +3,7 @@ import { ethers } from 'ethers'
 
 dotenv.config()
 
-// const SMART_ACCOUNT_ADDRESS = '0x93eA260a11B45945a67E52Ea8B3CF4FBFbbd1393'
-const NEW_SMART_ACCOUNT = '0x4634a26fde6a69bE03b51fb0F9F3f62795050732'
-const SMART_ACCOUNT_ADDRESS = NEW_SMART_ACCOUNT
+const SMART_ACCOUNT_ADDRESS = ''
 
 async function main(): Promise<void> {
   const RPC_URL = process.env.RPC_URL
