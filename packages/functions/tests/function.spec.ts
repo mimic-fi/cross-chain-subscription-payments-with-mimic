@@ -2,8 +2,8 @@ import { Chains, ONES_ADDRESS, OpType, ZERO_ADDRESS } from '@mimicprotocol/sdk'
 import { runFunction, Swap, Transfer } from '@mimicprotocol/test-ts'
 import { expect } from 'chai'
 
-describe('Task', () => {
-  const taskDir = './build'
+describe('Subscription Payment Function', () => {
+  const buildDir = './build'
 
   const chainId = Chains.Optimism
   const context = {
@@ -26,7 +26,7 @@ describe('Task', () => {
       }
 
       it('produces the expected intents', async () => {
-        const result = await runFunction(taskDir, context, { inputs })
+        const result = await runFunction(buildDir, context, { inputs })
 
         expect(result.success).to.be.true
         expect(result.timestamp).to.be.equal(context.timestamp)
@@ -58,7 +58,7 @@ describe('Task', () => {
       }
 
       it('produces the expected intents', async () => {
-        const result = await runFunction(taskDir, context, { inputs })
+        const result = await runFunction(buildDir, context, { inputs })
 
         expect(result.success).to.be.true
         expect(result.timestamp).to.be.equal(context.timestamp)
@@ -96,7 +96,7 @@ describe('Task', () => {
     }
 
     it('throws an error', async () => {
-      const result = await runFunction(taskDir, context, { inputs })
+      const result = await runFunction(buildDir, context, { inputs })
       expect(result.success).to.be.false
       expect(result.intents).to.have.lengthOf(0)
 
