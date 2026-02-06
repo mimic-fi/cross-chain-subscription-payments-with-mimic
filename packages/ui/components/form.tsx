@@ -205,7 +205,7 @@ export function Form() {
               </a>
             </div>
           ) : (
-            <Label className="text-sm font-medium">Subscription settings</Label>
+            <Label className="text-sm font-medium">Configure your USDC subscription</Label>
           )}
           <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
             <DialogTrigger asChild>
