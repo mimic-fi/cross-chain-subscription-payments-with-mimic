@@ -1,46 +1,40 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import Providers from "@/providers"
-import "./globals.css"
+import type React from 'react'
+import type { Metadata } from 'next'
+import { headers } from 'next/headers'
+import { Geist, Geist_Mono } from 'next/font/google'
+import { Toaster } from '@/components/ui/toaster'
+import Providers from '@/providers/providers'
+import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const _geist = Geist({ subsets: ['latin'] })
+const _geistMono = Geist_Mono({ subsets: ['latin'] })
+
+interface Props {
+  children: React.ReactNode
+}
 
 export const metadata: Metadata = {
-  title: "Mimic Subscription Service",
-  description: "USDC subscription service with automatic recurring billing powered by Mimic",
-  generator: "v0.app",
+  title: 'Mimic Subscription Payments',
+  description: 'USDC subscription service with automatic recurring billing powered by Mimic',
+  generator: 'v0.app',
   icons: {
     icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
-    apple: "/apple-icon.png",
+    shortcut: ['/favicon.ico'],
   },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default async function RootLayout({ children }: Props) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={`font-sans antialiased`}>
-        <Providers>{children}</Providers>
-        <Analytics />
+        <Providers cookies={(await headers()).get('cookie')}>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   )

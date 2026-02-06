@@ -1,22 +1,22 @@
-import { fp, Config, TriggerType } from '@mimicprotocol/sdk'
-import { Chain } from '@/lib/chains'
-import { Token } from '@/lib/tokens'
+import { fp, Trigger, TriggerType } from '@mimicprotocol/sdk'
+import type { Chain } from '@/lib/chains'
 import sdk from '@/lib/sdk'
 import { WagmiSigner } from '@/lib/wagmi-signer'
-import { TASK_CID } from '@/lib/constants'
-import { findCurrentConfig } from '@/lib/executions'
+import { FUNCTION_CID } from '@/lib/constants'
+import { findCurrentTrigger } from '@/lib/functions'
 
-interface InvestParams {
-  chain: Chain
-  token: Token
+interface SubscribeParams {
+  sourceChain: Chain
+  destinationChain: Chain
   amount: string
+  recipient: string
   maxFee: string
   frequency: Frequency
   signer: WagmiSigner
 }
 
 interface DeactivateParams {
-  config: Config
+  trigger: Trigger
   signer: WagmiSigner
 }
 
@@ -42,33 +42,34 @@ function bumpPatch(version: string): string {
   return `${major}.${minor}.${Number(patch) + 1}`
 }
 
-export async function deactivate(params: DeactivateParams): Promise<Config> {
-  const { config, signer } = params
-  return sdk().configs.signAndDeactivate(config.sig, signer)
+export async function deactivate(params: DeactivateParams): Promise<Trigger> {
+  const { trigger, signer } = params
+  return sdk().triggers.signAndDeactivate(trigger.sig, signer)
 }
 
-export async function invest(params: InvestParams): Promise<Config> {
-  const { chain, token, amount, maxFee, frequency, signer } = params
-  const description = `Invest ${amount} ${token.symbol} on ${chain.name} ${frequency}`
-  const manifest = await sdk().tasks.getManifest(TASK_CID)
-  const config = (await findCurrentConfig(signer.address)) || (await findCurrentConfig(signer.address, false))
+export async function subscribe(params: SubscribeParams): Promise<Trigger> {
+  const { sourceChain, destinationChain, amount, recipient, maxFee, frequency, signer } = params
+  const description = `Subscribing ${amount} USDC from ${sourceChain.name} to ${destinationChain.name} ${frequency}`
+  const manifest = await sdk().functions.getManifest(FUNCTION_CID)
+  const config = (await findCurrentTrigger(signer.address)) || (await findCurrentTrigger(signer.address, false))
   const version = config ? bumpPatch(config.version) : '0.0.1'
-  return sdk().configs.signAndCreate(
+  return sdk().triggers.signAndCreate(
     {
-      taskCid: TASK_CID,
+      functionCid: FUNCTION_CID,
       version,
       manifest,
       description,
-      trigger: {
+      config: {
         type: TriggerType.Cron,
         schedule: CRON_SCHEDULES[frequency],
         delta: '10m',
         endDate: 0,
       },
       input: {
-        chainId: chain.id,
-        token: token.address,
-        amount,
+        sourceChain: sourceChain.id,
+        destinationChain: destinationChain.id,
+        amountIn: amount,
+        recipient,
         maxFee,
       },
       executionFeeLimit: fp(1).toString(),

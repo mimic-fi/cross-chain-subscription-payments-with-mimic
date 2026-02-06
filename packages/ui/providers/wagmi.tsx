@@ -1,24 +1,30 @@
 'use client'
 
-import type React from 'react'
+import React from 'react'
+import { cookieStorage, cookieToInitialState, createStorage, WagmiProvider } from 'wagmi'
+import { mainnet, optimism, gnosis, arbitrum, base } from 'wagmi/chains'
+import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
+import '@rainbow-me/rainbowkit/styles.css'
 
-import { createConfig, http, WagmiProvider } from 'wagmi'
-import { base } from 'wagmi/chains'
-import { coinbaseWallet } from 'wagmi/connectors'
-
-const config = createConfig({
-  chains: [base],
-  connectors: [
-    coinbaseWallet({
-      appName: 'Mimic Subscription App',
-      preference: 'all',
-    }),
-  ],
-  transports: {
-    [base.id]: http(),
-  },
+export const config = getDefaultConfig({
+  appName: 'Mimic',
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
+  chains: [mainnet, optimism, gnosis, arbitrum, base],
+  ssr: true,
+  storage: createStorage({ storage: cookieStorage }),
 })
 
-export default function WalletProvider({ children }: { children: React.ReactNode }) {
-  return <WagmiProvider config={config}>{children}</WagmiProvider>
+interface Props {
+  children: React.ReactNode
+  cookies: string | null
+}
+
+export default function WalletProvider({ children, cookies }: Props) {
+  const initialState = cookieToInitialState(config, cookies)
+
+  return (
+    <WagmiProvider config={config} initialState={initialState}>
+      <RainbowKitProvider>{children}</RainbowKitProvider>
+    </WagmiProvider>
+  )
 }
