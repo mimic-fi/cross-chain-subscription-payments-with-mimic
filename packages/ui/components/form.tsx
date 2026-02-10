@@ -33,6 +33,7 @@ export function Form() {
   const [amount, setAmount] = useState('')
   const [recipient, setRecipient] = useState('0xbcE3248eDE29116e4bD18416dcC2DFca668Eeb84')
   const [maxFee, setMaxFee] = useState('0.1')
+  const [slippageBps, setSlippageBps] = useState('1')
   const [frequency, setFrequency] = useState<Frequency>('daily')
   const [isLoading, setIsLoading] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -75,6 +76,8 @@ export function Form() {
     setMaxFee(String(inputs.maxFee))
     setRecipient(String(inputs.recipient))
 
+    if (inputs.slippageBps !== undefined) setSlippageBps(String(inputs.slippageBps))
+
     const sourceChain = Object.values(CHAINS).find((chain: Chain) => chain.id == inputs.sourceChain)
     if (sourceChain) setSourceChain(sourceChain)
 
@@ -103,7 +106,7 @@ export function Form() {
 
     setIsLoading(true)
     try {
-      const params = { sourceChain, destinationChain, amount, recipient, maxFee, frequency, signer }
+      const params = { sourceChain, destinationChain, amount, recipient, maxFee, slippageBps, frequency, signer }
       const trigger = await subscribe(params)
 
       toast({
@@ -162,10 +165,10 @@ export function Form() {
       <div className="space-y-6">
         {isConnected && !isSmartAccountLoading && !isSmartAccount && (
           <div className="w-full rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <span className="font-semibold">This app is only meant to be used with Mimic EIP-7702 smart accounts.</span>{' '}
+            <span className="font-semibold">{'This app is only meant to be used with Mimic EIP-7702 smart accounts.'}</span>{' '}
             <br />
             <span className="text-destructive/90">
-              You can upgrade your existing wallet by following{' '}
+              {'You can upgrade your existing wallet by following '}
               <a
                 href="https://docs.mimic.fi/examples/upgrade-your-eoa-to-a-mimic-7702"
                 target="_blank"
@@ -187,7 +190,7 @@ export function Form() {
 
         {isConnected && isSmartAccountLoading && (
           <div className="rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm text-muted-foreground">
-            Checking EIP-7702 delegation ...
+            {'Checking EIP-7702 delegation ...'}
           </div>
         )}
 
@@ -237,7 +240,27 @@ export function Form() {
                     />
                     <span className="text-muted-foreground">USDC</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Maximum fee you’re willing to pay per execution.</p>
+                  <p className="text-xs text-muted-foreground">{"Maximum fee you're willing to pay per execution."}</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slippage-setting" className="text-sm text-muted-foreground">
+                    Slippage
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="slippage-setting"
+                      type="number"
+                      placeholder="1"
+                      value={slippageBps}
+                      onChange={(e) => setSlippageBps(e.target.value)}
+                      className="h-11 bg-secondary/50 border-border"
+                      min="0"
+                      step="1"
+                      disabled={isFormDisabled}
+                    />
+                    <span className="text-muted-foreground">bps</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Maximum slippage tolerance in basis points (1 bps = 0.01%).</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="recipient-setting" className="text-sm text-muted-foreground">
@@ -339,7 +362,7 @@ export function Form() {
         )}
 
         <div className="text-xs text-muted-foreground text-center">
-          Powered by{' '}
+          {'Powered by '}
           <a
             href="https://www.mimic.fi"
             target="_blank"
