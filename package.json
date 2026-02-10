@@ -5,6 +5,7 @@
   "description": "Cross chain subscription payments with Mimic",
   "license": "MIT",
   "scripts": {
+    "dev": "yarn workspace cross-chain-subscription-payments-with-mimic-ui dev",
     "build": "yarn workspaces run build",
     "lint": "yarn workspaces run lint",
     "test": "yarn workspaces run test"
@@ -17,5 +18,8 @@
       "**/mocha",
       "**/mocha/**"
     ]
+  },
+  "dependencies": {
+    "next": "^16.1.6"
   }
 }
