@@ -35,6 +35,7 @@ export function Form() {
   const [maxFee, setMaxFee] = useState('0.1')
   const [frequency, setFrequency] = useState<Frequency>('daily')
   const [isLoading, setIsLoading] = useState(false)
+  const [slippage, setSlippage] = useState('200')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [currentSubscription, setCurrentSubscription] = useState<Trigger | null>(null)
   const [isLoadingCurrentSubscription, setIsLoadingCurrentSubscription] = useState(false)
@@ -75,6 +76,8 @@ export function Form() {
     setMaxFee(String(inputs.maxFee))
     setRecipient(String(inputs.recipient))
 
+    if (inputs.slippageBps != null) setSlippage(String(inputs.slippageBps))
+
     const sourceChain = Object.values(CHAINS).find((chain: Chain) => chain.id == inputs.sourceChain)
     if (sourceChain) setSourceChain(sourceChain)
 
@@ -103,7 +106,7 @@ export function Form() {
 
     setIsLoading(true)
     try {
-      const params = { sourceChain, destinationChain, amount, recipient, maxFee, frequency, signer }
+      const params = { sourceChain, destinationChain, amount, recipient, maxFee, frequency, slippage, signer }
       const trigger = await subscribe(params)
 
       toast({
@@ -252,6 +255,23 @@ export function Form() {
                     disabled={isFormDisabled}
                   />
                   <p className="text-xs text-muted-foreground">Address that will receive the subscription payments.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slippage-setting" className="text-sm text-muted-foreground">
+                    Slippage (bps)
+                  </Label>
+                  <Input
+                    id="slippage-setting"
+                    type="number"
+                    placeholder="200"
+                    value={slippage}
+                    onChange={(e) => setSlippage(e.target.value)}
+                    className="h-11 bg-secondary/50 border-border"
+                    min="0"
+                    step="1"
+                    disabled={isFormDisabled}
+                  />
+                  <p className="text-xs text-muted-foreground">Maximum slippage in basis points (e.g. 200 = 2%).</p>
                 </div>
               </div>
             </DialogContent>
