@@ -34,7 +34,7 @@ export default function main(): void {
   } else {
     const tokenOut = getUsdc(destinationChain)
     const tokenAmountOut = TokenAmount.fromStringDecimal(tokenOut, inputs.amountIn)
-    const minAmountOut = tokenAmountOut.applySlippageBps(inputs.slippageBps as i32)
+    const minAmountOut = tokenAmountOut.applySlippageBps(inputs.slippage as i32)
 
     SwapBuilder.forChains(sourceChain, destinationChain)
       .addTokenInFromTokenAmount(tokenAmountIn)

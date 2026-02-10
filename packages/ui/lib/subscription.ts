@@ -72,7 +72,7 @@ export async function subscribe(params: SubscribeParams): Promise<Trigger> {
         amountIn: amount,
         recipient,
         maxFee,
-        slippageBps: Number(slippage),
+        slippage: Number(slippage),
       },
       executionFeeLimit: fp(1).toString(),
       minValidations: 1,

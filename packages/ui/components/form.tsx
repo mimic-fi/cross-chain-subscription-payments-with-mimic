@@ -76,7 +76,7 @@ export function Form() {
     setMaxFee(String(inputs.maxFee))
     setRecipient(String(inputs.recipient))
 
-    if (inputs.slippageBps != null) setSlippage(String(inputs.slippageBps))
+    if (inputs.slippage != null) setSlippage(String(inputs.slippage))
 
     const sourceChain = Object.values(CHAINS).find((chain: Chain) => chain.id == inputs.sourceChain)
     if (sourceChain) setSourceChain(sourceChain)

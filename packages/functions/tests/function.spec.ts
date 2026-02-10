@@ -23,7 +23,7 @@ describe('Subscription Payment Function', () => {
         payer: ONES_ADDRESS,
         recipient: ZERO_ADDRESS,
         maxFee: '0.1',
-        slippageBps: 1,
+        slippage: 1,
       }
 
       it('produces the expected intents', async () => {
@@ -56,7 +56,7 @@ describe('Subscription Payment Function', () => {
         payer: ONES_ADDRESS,
         recipient: ZERO_ADDRESS,
         maxFee: '0.1',
-        slippageBps: 1,
+        slippage: 1,
       }
 
       it('produces the expected intents', async () => {
@@ -95,7 +95,7 @@ describe('Subscription Payment Function', () => {
       payer: ONES_ADDRESS,
       recipient: ZERO_ADDRESS,
       maxFee: '0.1',
-      slippageBps: 1,
+      slippage: 1,
     }
 
     it('throws an error', async () => {
