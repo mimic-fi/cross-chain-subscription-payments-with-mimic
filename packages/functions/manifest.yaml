@@ -1,4 +1,4 @@
-version: 1.0.0
+version: 1.0.2
 name: Subscriptions payments
 description: Cross chain subscriptions payment
 inputs:
@@ -7,4 +7,4 @@ inputs:
   - amountIn: string        # e.g., '10.5' = 10.5 USDC
   - recipient: address
   - maxFee: string          # e.g., '0.01' = 0.01 USDC
-  - slippageBps: uint16   # e.g., 50 = 0.50%
+  - slippage: uint16   # e.g., 50 = 0.50%
