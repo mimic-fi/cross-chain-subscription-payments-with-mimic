@@ -33,7 +33,7 @@ export function Form() {
   const [amount, setAmount] = useState('')
   const [recipient, setRecipient] = useState('0xbcE3248eDE29116e4bD18416dcC2DFca668Eeb84')
   const [maxFee, setMaxFee] = useState('0.1')
-  const [slippageBps, setSlippageBps] = useState('100')
+  const [slippageBps, setSlippageBps] = useState('1')
   const [frequency, setFrequency] = useState<Frequency>('daily')
   const [isLoading, setIsLoading] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -75,7 +75,7 @@ export function Form() {
     setAmount(String(inputs.amountIn))
     setMaxFee(String(inputs.maxFee))
     setRecipient(String(inputs.recipient))
-    setSlippageBps(String(inputs.slippageBps || '100'))
+    setSlippageBps(String(inputs.slippageBps || '1'))
 
     const sourceChain = Object.values(CHAINS).find((chain: Chain) => chain.id == inputs.sourceChain)
     if (sourceChain) setSourceChain(sourceChain)
@@ -249,7 +249,7 @@ export function Form() {
                     <Input
                       id="slippage-setting"
                       type="number"
-                      placeholder="100"
+                      placeholder="1"
                       value={slippageBps}
                       onChange={(e) => setSlippageBps(e.target.value)}
                       className="h-11 bg-secondary/50 border-border"
@@ -260,23 +260,6 @@ export function Form() {
                     <span className="text-muted-foreground">BPS</span>
                   </div>
                   <p className="text-xs text-muted-foreground">Maximum slippage tolerance in basis points (1% = 100 BPS).</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="recipient-setting" className="text-sm text-muted-foreground">
-                    Recipient
-                  </Label>
-                  <Input
-                    id="recipient-setting"
-                    type="text"
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    className="h-11 bg-secondary/50 border-border"
-                    disabled={isFormDisabled}
-                  />
-                  <p className="text-xs text-muted-foreground">Address that will receive the subscription payments.</p>
-                </div>
-              </div>
-                  <p className="text-xs text-muted-foreground">Maximum fee you’re willing to pay per execution.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="recipient-setting" className="text-sm text-muted-foreground">
