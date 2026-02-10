@@ -34,13 +34,12 @@ export default function main(): void {
   } else {
     const tokenOut = getUsdc(destinationChain)
     const tokenAmountOut = TokenAmount.fromStringDecimal(tokenOut, inputs.amountIn)
-    const maxFee = TokenAmount.fromStringDecimal(tokenOut, inputs.maxFee)
+    const minAmountOut = tokenAmountOut.applySlippageBps(inputs.slippageBps as i32)
 
     SwapBuilder.forChains(sourceChain, destinationChain)
       .addTokenInFromTokenAmount(tokenAmountIn)
-      .addTokenOutFromTokenAmount(tokenAmountOut, inputs.recipient)
+      .addTokenOutFromTokenAmount(minAmountOut, inputs.recipient)
       .addUser(context.user)
-      .addMaxFee(maxFee)
       .build()
       .send()
   }
