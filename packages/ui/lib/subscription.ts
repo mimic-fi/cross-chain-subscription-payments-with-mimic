@@ -11,6 +11,7 @@ interface SubscribeParams {
   amount: string
   recipient: string
   maxFee: string
+  slippageBps: string
   frequency: Frequency
   signer: WagmiSigner
 }
@@ -48,7 +49,7 @@ export async function deactivate(params: DeactivateParams): Promise<Trigger> {
 }
 
 export async function subscribe(params: SubscribeParams): Promise<Trigger> {
-  const { sourceChain, destinationChain, amount, recipient, maxFee, frequency, signer } = params
+  const { sourceChain, destinationChain, amount, recipient, maxFee, slippageBps, frequency, signer } = params
   const description = `Subscribing ${amount} USDC from ${sourceChain.name} to ${destinationChain.name} ${frequency}`
   const manifest = await sdk().functions.getManifest(FUNCTION_CID)
   const config = (await findCurrentTrigger(signer.address)) || (await findCurrentTrigger(signer.address, false))
@@ -71,6 +72,7 @@ export async function subscribe(params: SubscribeParams): Promise<Trigger> {
         amountIn: amount,
         recipient,
         maxFee,
+        slippageBps,
       },
       executionFeeLimit: fp(1).toString(),
       minValidations: 1,
