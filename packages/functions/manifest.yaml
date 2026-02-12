@@ -1,10 +1,10 @@
-version: 1.0.2
+version: 1.0.3
 name: Subscriptions payments
-description: Cross chain subscriptions payment
+description: Cross-chain USDC subscriptions payments
 inputs:
   - sourceChain: uint32
   - destinationChain: uint32
   - amountIn: string        # e.g., '10.5' = 10.5 USDC
   - recipient: address
   - maxFee: string          # e.g., '0.01' = 0.01 USDC
-  - slippage: uint16   # e.g., 50 = 0.50%
+  - slippageBps: uint16     # e.g., 50 = 0.50%
