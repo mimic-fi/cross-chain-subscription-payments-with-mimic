@@ -21,6 +21,8 @@ import { useSmartAccountCheck } from '@/hooks/use-smart-account-check'
 import { type Frequency, CRON_SCHEDULES, subscribe, deactivate, getFrequencyFromSchedule } from '@/lib/subscription'
 import { findCurrentTrigger } from '@/lib/functions'
 import { capitalize } from '@/lib/utils'
+import { useTokenBalance } from '@/hooks/use-token-balance'
+import { TOKENS } from '@/lib/tokens'
 
 export function Form() {
   const { toast } = useToast()
@@ -32,6 +34,7 @@ export function Form() {
   const [destinationChain, setDestinationChain] = useState<Chain>(CHAINS.base)
   const [amount, setAmount] = useState('')
   const [recipient, setRecipient] = useState('0xbcE3248eDE29116e4bD18416dcC2DFca668Eeb84')
+  const [slippage, setSlippage] = useState('2.0')
   const [maxFee, setMaxFee] = useState('0.1')
   const [frequency, setFrequency] = useState<Frequency>('daily')
   const [isLoading, setIsLoading] = useState(false)
@@ -39,6 +42,7 @@ export function Form() {
   const [currentSubscription, setCurrentSubscription] = useState<Trigger | null>(null)
   const [isLoadingCurrentSubscription, setIsLoadingCurrentSubscription] = useState(false)
   const { isSmartAccount, isSmartAccountLoading } = useSmartAccountCheck(sourceChain)
+  const { tokenBalance, isTokenBalanceLoading } = useTokenBalance(sourceChain)
   const isFormDisabled = isLoadingCurrentSubscription || !!currentSubscription
 
   useEffect(() => {
@@ -74,6 +78,7 @@ export function Form() {
     setAmount(String(inputs.amountIn))
     setMaxFee(String(inputs.maxFee))
     setRecipient(String(inputs.recipient))
+    setSlippage(String(Number(inputs.slippageBps || 0) / 100))
 
     const sourceChain = Object.values(CHAINS).find((chain: Chain) => chain.id == inputs.sourceChain)
     if (sourceChain) setSourceChain(sourceChain)
@@ -103,7 +108,7 @@ export function Form() {
 
     setIsLoading(true)
     try {
-      const params = { sourceChain, destinationChain, amount, recipient, maxFee, frequency, signer }
+      const params = { sourceChain, destinationChain, amount, recipient, maxFee, frequency, slippage, signer }
       const trigger = await subscribe(params)
 
       toast({
@@ -220,6 +225,28 @@ export function Form() {
 
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
+                  <Label htmlFor="slippage-setting" className="text-sm text-muted-foreground">
+                    Slippage
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="slippage-setting"
+                      type="number"
+                      placeholder="0.5"
+                      value={slippage}
+                      onChange={(e) => setSlippage(e.target.value)}
+                      className="h-11 bg-secondary/50 border-border"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                    />
+                    <span className="text-muted-foreground">%</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Your transaction will revert if the price changes unfavorably by more than this percentage.
+                  </p>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="max-fee-setting" className="text-sm text-muted-foreground">
                     Max fee
                   </Label>
@@ -287,6 +314,17 @@ export function Form() {
                 className="h-12 bg-secondary/50 border-border text-lg text-right"
                 disabled={isFormDisabled}
               />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <div className="w-56 text-xs text-muted-foreground text-right pr-2">
+              {isConnected
+                ? isTokenBalanceLoading
+                  ? 'Fetching balance…'
+                  : tokenBalance
+                    ? `Balance: ${tokenBalance}`
+                    : '.'
+                : '...'}
             </div>
           </div>
         </div>

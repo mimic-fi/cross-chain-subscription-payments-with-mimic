@@ -2,7 +2,7 @@ import { fp, Trigger, TriggerType } from '@mimicprotocol/sdk'
 import type { Chain } from '@/lib/chains'
 import sdk from '@/lib/sdk'
 import { WagmiSigner } from '@/lib/wagmi-signer'
-import { FUNCTION_CID } from '@/lib/constants'
+import { BPS_DECIMALS, FUNCTION_CID } from '@/lib/constants'
 import { findCurrentTrigger } from '@/lib/functions'
 
 interface SubscribeParams {
@@ -11,6 +11,7 @@ interface SubscribeParams {
   amount: string
   recipient: string
   maxFee: string
+  slippage: string
   frequency: Frequency
   signer: WagmiSigner
 }
@@ -48,8 +49,13 @@ export async function deactivate(params: DeactivateParams): Promise<Trigger> {
 }
 
 export async function subscribe(params: SubscribeParams): Promise<Trigger> {
-  const { sourceChain, destinationChain, amount, recipient, maxFee, frequency, signer } = params
-  const description = `Subscribing ${amount} USDC from ${sourceChain.name} to ${destinationChain.name} ${frequency}`
+  const { sourceChain, destinationChain, amount, recipient, maxFee, slippage, frequency, signer } = params
+
+  const description =
+    sourceChain.id === destinationChain.id
+      ? `Send ${amount} USDC on ${sourceChain.name} every ${frequency}`
+      : `Send ${amount} USDC from ${sourceChain.name} to ${destinationChain.name} ${frequency} with ${slippage}% slippage`
+
   const manifest = await sdk().functions.getManifest(FUNCTION_CID)
   const config = (await findCurrentTrigger(signer.address)) || (await findCurrentTrigger(signer.address, false))
   const version = config ? bumpPatch(config.version) : '0.0.1'
@@ -71,6 +77,7 @@ export async function subscribe(params: SubscribeParams): Promise<Trigger> {
         amountIn: amount,
         recipient,
         maxFee,
+        slippageBps: fp(slippage, BPS_DECIMALS),
       },
       executionFeeLimit: fp(1).toString(),
       minValidations: 1,

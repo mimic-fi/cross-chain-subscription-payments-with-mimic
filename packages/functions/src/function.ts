@@ -1,8 +1,8 @@
 import {
   Arbitrum,
   Base,
+  BigInt,
   ChainId,
-  environment,
   Ethereum,
   Gnosis,
   Optimism,
@@ -14,8 +14,12 @@ import {
 
 import { inputs } from './types'
 
+const BPS_DENOMINATOR = BigInt.fromI32(10_000)
+
 export default function main(): void {
-  const context = environment.getContext()
+  const slippageBps = BigInt.fromI32(inputs.slippageBps as i32)
+  if (slippageBps.gt(BPS_DENOMINATOR)) throw new Error('Slippage must be between 0 and 100')
+
   const sourceChain = inputs.sourceChain
   const destinationChain = inputs.destinationChain
 
@@ -27,20 +31,17 @@ export default function main(): void {
 
     TransferBuilder.forChain(sourceChain)
       .addTransferFromTokenAmount(tokenAmountIn, inputs.recipient)
-      .addUser(context.user)
       .addMaxFee(maxFee)
       .build()
       .send()
   } else {
     const tokenOut = getUsdc(destinationChain)
     const tokenAmountOut = TokenAmount.fromStringDecimal(tokenOut, inputs.amountIn)
-    const maxFee = TokenAmount.fromStringDecimal(tokenOut, inputs.maxFee)
+    const minAmountOut = tokenAmountOut.applySlippageBps(inputs.slippageBps as i32)
 
     SwapBuilder.forChains(sourceChain, destinationChain)
       .addTokenInFromTokenAmount(tokenAmountIn)
-      .addTokenOutFromTokenAmount(tokenAmountOut, inputs.recipient)
-      .addUser(context.user)
-      .addMaxFee(maxFee)
+      .addTokenOutFromTokenAmount(minAmountOut, inputs.recipient)
       .build()
       .send()
   }
